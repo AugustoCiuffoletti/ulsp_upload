@@ -5,9 +5,14 @@ input.onchange = (e) => {
   fileReader.onload = function () {
     try {
       let data = JSON.parse(fileReader.result);
-      console.log(data['type']);
+      if (data['type'] !== 'FeatureCollection') {
+        throw 'Not a FeatureCollection';
+      }
+      for (let feature of data.features) {
+        console.log(JSON.stringify(feature.geometry));
+      }
     } catch (e) {
-      console.log('Parse error: ' + toString(e.message));
+      console.error('Parse error: ' + e);
     }
   };
   fileReader.onerror = function () {
