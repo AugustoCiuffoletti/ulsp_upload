@@ -21,9 +21,19 @@ input.onchange = (e) => {
       for (let feature of data.features) {
         feature.source = file.name;
         feature.serial = n + 1;
-        console.log(JSON.stringify(feature));
+        //        console.log(JSON.stringify(feature));
         n = n + 1;
       }
+      const xhttp = new XMLHttpRequest();
+      xhttp.onload = function () {
+        console.log(this.responseText);
+      };
+      xhttp.open(
+        'POST',
+        'https://data.mongodb-api.com/app/underlandscape-app-fwkpt/endpoint/upload_geojson?secret=arazHX6V'
+      );
+      xhttp.setRequestHeader('Content-type', 'application/json');
+      xhttp.send(JSON.stringify(data.features));
     } catch (e) {
       console.error('Parse error: ' + e);
     }
