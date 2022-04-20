@@ -1,5 +1,14 @@
 input.onchange = (e) => {
   let file = input.files[0];
+  let [date, description] = [];
+  try {
+    [date, description] = checkfilename(file.name);
+  } catch (e) {
+    console.error('Non compliant filename: ' + e);
+    throw e;
+  }
+  console.log(date);
+  console.log(description);
   let fileReader = new FileReader();
   fileReader.readAsText(file);
   fileReader.onload = function () {
@@ -8,8 +17,12 @@ input.onchange = (e) => {
       if (data['type'] !== 'FeatureCollection') {
         throw 'Not a FeatureCollection';
       }
+      let n = 0;
       for (let feature of data.features) {
-        console.log(JSON.stringify(feature.geometry));
+        feature.source = file.name;
+        feature.serial = n + 1;
+        console.log(JSON.stringify(feature));
+        n = n + 1;
       }
     } catch (e) {
       console.error('Parse error: ' + e);
@@ -19,3 +32,14 @@ input.onchange = (e) => {
     alert(fileReader.error);
   };
 };
+
+function checkfilename(fn) {
+  let parts = fn.split('.');
+  if (parts.length !== 2) throw 'no dots in the description';
+  if (parts[1] !== 'geojson') throw 'extension MUST be "geojson"';
+  if (parts[0].length < 5 || parts[0].length > 20)
+    throw 'description length in [5..20]';
+  if (!parts[0].match(/^[0-9]{8}-[0-9a-zA-Z]+$/))
+    throw 'Description must be in format "yyyymmdd-xxxxxxxxxxx"';
+  return parts[0].split('-');
+}
