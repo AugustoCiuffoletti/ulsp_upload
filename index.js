@@ -1,3 +1,28 @@
+removeButton.onclick = (e) => {
+  const xhttp = new XMLHttpRequest();
+  const query = document.getElementById('removeQuery').value;
+  var message = 'uela';
+  console.log(query);
+  try {
+    xhttp.onload = function () {
+      message = this.responseText;
+      console.log(message);
+    };
+    xhttp.open(
+      'GET',
+      `https://data.mongodb-api.com/app/underlandscape-app-fwkpt/endpoint/remove?secret=czYZJvY2&source=${query}`,
+      false
+    );
+    xhttp.setRequestHeader('Content-type', 'application/json');
+    xhttp.send();
+  } catch (e) {
+    console.error(e);
+    message = e;
+    throw e;
+  }
+  document.getElementById('removeOutput').innerHTML = message;
+};
+
 input.onchange = (e) => {
   let file = input.files[0];
   let [date, description] = [];
@@ -68,8 +93,8 @@ function checkfilename(fn) {
   let parts = fn.split('.');
   if (parts.length !== 2) throw 'no dots in the description';
   if (parts[1] !== 'geojson') throw 'extension MUST be "geojson"';
-  if (parts[0].length < 5 || parts[0].length > 20)
-    throw 'description length in [5..20]';
+  if (parts[0].length < 5 || parts[0].length > 30)
+    throw 'description length in [5..30]';
   if (!parts[0].match(/^[0-9]{8}-[0-9a-zA-Z]+$/))
     throw 'Description must be in format "yyyymmdd-xxxxxxxxxxx"';
   return parts[0].split('-');
