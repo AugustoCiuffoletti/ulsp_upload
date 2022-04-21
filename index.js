@@ -9,6 +9,27 @@ input.onchange = (e) => {
   }
   console.log(date);
   console.log(description);
+  // Check if source already uploaded (and fail)
+  try {
+    const xhttp = new XMLHttpRequest();
+    const source = file.name.split('.')[0];
+    let stat = {};
+    xhttp.onload = function () {
+      stat = JSON.parse(JSON.parse(this.responseText));
+    };
+    xhttp.open(
+      'GET',
+      `https://data.mongodb-api.com/app/underlandscape-app-fwkpt/endpoint/stat?source=${source}`,
+      false
+    );
+    xhttp.setRequestHeader('Content-type', 'application/json');
+    xhttp.send();
+    if (stat.n != 0) throw `A source named ${source} has been already uploaded`;
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+  // Test finished
   let fileReader = new FileReader();
   fileReader.readAsText(file);
   fileReader.onload = function () {
@@ -19,7 +40,7 @@ input.onchange = (e) => {
       }
       let n = 0;
       for (let feature of data.features) {
-        feature.source = file.name;
+        feature.source = file.name.split('.')[0];
         feature.serial = n + 1;
         //        console.log(JSON.stringify(feature));
         n = n + 1;
